@@ -43,7 +43,6 @@ class CTLibraryGeneratorTests(unittest.TestCase):
             
     def test_collision_pattern_400_over_500(self):
         seq = collision_pattern(4,5)
-        print(seq.events)
         assert seq.events == [
             CTEvent(None,4), 
             CTEvent(None,1), 

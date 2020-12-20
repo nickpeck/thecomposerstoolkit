@@ -70,8 +70,10 @@ class CTTransformer():
     def __init__(self, functor):
         self._functor = functor
     
-    def call(self, *args, **kwargs):
+    def __call__(self, *args, **kwargs):
         def transform(instance):
-            args = [instance] + args
+            nonlocal args
+            nonlocal kwargs
+            args = [instance] + list(args)
             return self._functor(*args, **kwargs)
-        return inner
+        return transform

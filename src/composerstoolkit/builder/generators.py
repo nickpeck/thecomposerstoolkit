@@ -1,4 +1,4 @@
-from composerstoolkit.core import CTEvent, CTGenerator
+from ..core import CTEvent, CTGenerator
 
 @CTGenerator
 def cantus(list_pitches=[]):

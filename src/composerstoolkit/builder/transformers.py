@@ -1,4 +1,6 @@
-from composerstoolkit.core import CTEvent, CTTransformer
+import math
+
+from ..core import CTEvent, CTTransformer
 
 @CTTransformer
 def loop(seq, n_times=1):
@@ -57,16 +59,45 @@ def linear_interpolate(seq, resolution=1):
     
 @CTTransformer
 def explode_intervals(seq, factor, mode="exponential"):
-    raise NotImplementedError
+    events = seq.events[:]
+    if len(events) is 1:
+        return events
+    
+    def _vectors(seq):
+        vectors = []
+        x = seq.events[0]
+        for y in seq.events[1:]:
+            vectors.append(y.pitch-x.pitch)
+            x = y
+        return vectors
+    
+    if mode == "exponential":
+        interval_vectors = [(factor * v)for v in _vectors(seq)]
+    elif mode == "linear":
+        interval_vectors = [(factor + v) for v in _vectors(seq)]
+    else:
+        raise Exception("unrecognised mode "+ mode)
+    
+    # first item in the seq stays as-is
+    i_events = iter(seq.events)
+    i_vectors = iter(interval_vectors)
+    result = [next(i_events)]
+    # apply the interval_vectors to distort the remaining items
+    pitch = result[0].pitch
+    while True:
+        try:
+            next_event = next(i_events)
+            next_vector = next(i_vectors)
+            pitch = math.ceil(next_vector + pitch)
+            result.append(CTEvent(pitch, next_event.duration))
+        except StopIteration:
+            break
+    return result
     
 @CTTransformer
-def explode_durations(seq, factor, mode="exponential"):
-    raise NotImplementedError
-    
-@CTTransformer
-def rhythmic_augmentation(seq, factor):
-    raise NotImplementedError
+def rhythmic_augmentation(seq, multiplier):
+    return [CTEvent(e.pitch, multiplier*e.duration) for e in seq.events]
     
 @CTTransformer
 def rhythmic_diminution(seq, factor):
-    raise NotImplementedError
+    return [CTEvent(e.pitch, e.duration/factor) for e in seq.events]

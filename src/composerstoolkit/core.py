@@ -29,7 +29,7 @@ class CTEvent(_ctevent):
         return self[1]
     
     def __str__(self):
-        return "<MuseEvent {0}, {1}>".format(self.pitch, self.duration)
+        return "<CTEvent {0}, {1}>".format(self.pitch, self.duration)
         
     def __add__(self, other):
         return CTSequence([self, other])
@@ -57,6 +57,25 @@ class CTSequence():
         
     def to_midi_events(self, time_offset=0):
         raise NotImplementedError
+        
+    def __getitem__(self, slice):
+        start, stop, step = None, None, None
+        try:
+            start, stop, step = slice
+            sliced_events = self.events[start:stop:step]
+        except TypeError:
+            try:
+                start, stop = slice
+                sliced_events = self.events[start:stop]
+            except TypeError:
+                start = slice
+                sliced_events = self.events[start]
+                if not isinstance(sliced_events , list):
+                    sliced_events = [sliced_events]
+        
+        _states = self.previous_states[:]
+        _states.append(self.events)
+        return CTSequence(sliced_events, _states)
     
     
 def CTGenerator(functor):

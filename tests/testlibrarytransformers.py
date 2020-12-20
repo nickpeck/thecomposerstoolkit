@@ -1,7 +1,9 @@
 import unittest
 
 from composerstoolkit.core import CTEvent, CTSequence, chain
-from composerstoolkit.builder.transformers import loop, transpose, invert, retrograde
+from composerstoolkit.builder.transformers import (loop, transpose, invert,
+    retrograde, rhythmic_augmentation, rhythmic_diminution,
+    explode_intervals)
 
 
 
@@ -94,3 +96,48 @@ class CTLibraryTransformerTests(unittest.TestCase):
             CTEvent(62,100),
             CTEvent(60,100),
         ]
+        
+    def test_rhythmic_augmentation(self):
+        augmented = self.src |chain| rhythmic_augmentation(2)
+        assert augmented.events == [
+            CTEvent(60,200),
+            CTEvent(62,200),
+            CTEvent(64,200),
+            CTEvent(60,200),
+        ]
+        
+    def test_rhythmic_diminution(self):
+        compressed = self.src |chain| rhythmic_diminution(2)
+        assert compressed.events == [
+            CTEvent(60,50),
+            CTEvent(62,50),
+            CTEvent(64,50),
+            CTEvent(60,50),
+        ]
+    
+    def test_intervalic_explosion_exp(self):
+        exploded = self.src |chain| explode_intervals(2)
+        assert exploded.events == [
+            CTEvent(60,100),
+            CTEvent(64,100),
+            CTEvent(68,100),
+            CTEvent(60,100),
+        ]
+        
+    def test_intervalic_explosion_linear(self):
+        exploded = self.src |chain| explode_intervals(2, "linear")
+        assert exploded.events == [
+            CTEvent(60,100),
+            CTEvent(64,100),
+            CTEvent(68,100),
+            CTEvent(66,100),
+        ]
+        
+    def test_intervalic_explosion_single_event(self):
+        exploded = self.src[0] |chain| explode_intervals(2, "linear")
+        assert exploded.events == [CTEvent(60,100)]
+        
+    def test_intervalic_explosion_raised_exc_bad_mode(self):
+        with self.assertRaises(Exception) as context:
+            exploded = self.src |chain| explode_intervals(2, "---")
+        

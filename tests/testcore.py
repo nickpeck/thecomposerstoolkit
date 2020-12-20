@@ -11,7 +11,7 @@ class CTEventTests(unittest.TestCase):
         
     def test_ctevent_str(self):
         cte = CTEvent()
-        assert str(cte) == "<MuseEvent None, 0>"
+        assert str(cte) == "<CTEvent None, 0>"
         
     def test_ctevent_creation(self):
         cte = CTEvent(3, 400)
@@ -82,7 +82,28 @@ class CTSequenceTests(unittest.TestCase):
         
         with self.assertRaises(NotChainableException) as context:
             new_seq = not_chainable |chain| test_modifier
-    
+            
+    def test_sequence_is_slicable(self):
+        cts = CTSequence([
+            CTEvent(60,100),
+            CTEvent(62,100),
+            CTEvent(64,100),
+            CTEvent(60,100)])
+            
+        sliced = cts[0]        
+        assert sliced.events == [CTEvent(60,100)]
+        sliced_middle = cts[1]        
+        assert sliced_middle.events == [CTEvent(62,100)]
+        sliced_end = cts[3]        
+        assert sliced_end.events == [CTEvent(60,100)]
+        
+        sliced_head = cts[:1]
+        assert sliced_end.events == [CTEvent(60,100)]
+        sliced_tail = cts[1:]
+        assert sliced_tail.events == [
+            CTEvent(62,100),
+            CTEvent(64,100),
+            CTEvent(60,100)]
     
 class CTGeneratorTests(unittest.TestCase):
     

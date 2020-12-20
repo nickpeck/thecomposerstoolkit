@@ -47,7 +47,12 @@ def invert(seq, axis_pitch=None):
     
 @CTTransformer
 def rotate(seq, no_times=1):
-    raise NotImplementedError
+    if seq.events == []:
+        return []
+    rotated = seq.events[:]
+    for i in range(no_times):
+        rotated = rotated[1:] + [rotated[0]]
+    return rotated
     
 @CTTransformer
 def mutation(seq, threshold=0.5, transformations=[], constraints=[]):
@@ -101,3 +106,4 @@ def rhythmic_augmentation(seq, multiplier):
 @CTTransformer
 def rhythmic_diminution(seq, factor):
     return [CTEvent(e.pitch, e.duration/factor) for e in seq.events]
+    

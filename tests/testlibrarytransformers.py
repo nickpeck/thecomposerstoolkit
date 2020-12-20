@@ -3,7 +3,7 @@ import unittest
 from composerstoolkit.core import CTEvent, CTSequence, chain
 from composerstoolkit.builder.transformers import (loop, transpose, invert,
     retrograde, rhythmic_augmentation, rhythmic_diminution,
-    explode_intervals)
+    explode_intervals, rotate)
 
 
 
@@ -42,6 +42,37 @@ class CTLibraryTransformerTests(unittest.TestCase):
     def test_loop_raises_exp_negative_input(self):
         with self.assertRaises(ValueError) as context:
             looped = self.src |chain| loop(-1)
+            
+    def test_empty_list(self):
+        rotated = CTSequence([]) |chain| rotate()
+        assert rotated.events == []
+        
+    def test_rotate(self):
+        rotated = self.src |chain| rotate()
+        assert rotated.events == [
+            CTEvent(62,100),
+            CTEvent(64,100),
+            CTEvent(60,100),
+            CTEvent(60,100),
+        ]
+    
+    def test_rotate_2(self):
+        rotated = self.src |chain| rotate(2)
+        assert rotated.events == [
+            CTEvent(64,100),
+            CTEvent(60,100),
+            CTEvent(60,100),
+            CTEvent(62,100),
+        ]
+        
+    def test_rotate_negative(self):
+        rotated = self.src |chain| rotate(22)
+        assert rotated.events == [
+            CTEvent(64,100),
+            CTEvent(60,100),
+            CTEvent(60,100),
+            CTEvent(62,100),
+        ]
     
     def test_transpose(self):
         transposed = self.src |chain| transpose(1)
@@ -140,4 +171,4 @@ class CTLibraryTransformerTests(unittest.TestCase):
     def test_intervalic_explosion_raised_exc_bad_mode(self):
         with self.assertRaises(Exception) as context:
             exploded = self.src |chain| explode_intervals(2, "---")
-        
+    

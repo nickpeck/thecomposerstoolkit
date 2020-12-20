@@ -1,8 +1,13 @@
 from composerstoolkit.core import CTEvent, CTTransformer
 
 @CTTransformer
-def loop_sequence(seq, n_times=1):
-    raise NotImplementedError
+def loop(seq, n_times=1):
+    if n_times < 0:
+        raise ValueError("n_times cannot be less than 0")
+    result = []
+    for i in range(n_times):
+        result = result + seq.events
+    return result
     
 @CTTransformer
 def transpose(seq, interval):
@@ -19,7 +24,9 @@ def transpose(seq, interval):
     
 @CTTransformer
 def retrograde(seq):
-    raise NotImplementedError
+    events = seq.events[:]
+    events.reverse()
+    return events
     
 @CTTransformer
 def invert(seq, axis_pitch=None):

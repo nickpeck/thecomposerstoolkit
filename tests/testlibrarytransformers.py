@@ -3,9 +3,7 @@ import unittest
 from composerstoolkit.core import CTEvent, CTSequence, chain
 from composerstoolkit.builder.transformers import (loop, transpose, invert,
     retrograde, rhythmic_augmentation, rhythmic_diminution,
-    explode_intervals, rotate)
-
-
+    explode_intervals, rotate, map_to_pulses, map_to_pitches)
 
 class CTLibraryTransformerTests(unittest.TestCase):
     
@@ -171,4 +169,38 @@ class CTLibraryTransformerTests(unittest.TestCase):
     def test_intervalic_explosion_raised_exc_bad_mode(self):
         with self.assertRaises(Exception) as context:
             exploded = self.src |chain| explode_intervals(2, "---")
+        
+    def test_map_to_pulses(self):
+        rhythm_seq = CTSequence([
+            CTEvent(None,100),
+            CTEvent(None,200),
+            CTEvent(None,300),
+        ])
+        exploded = self.src |chain| map_to_pulses(rhythm_seq)
+        assert exploded.events == [
+            CTEvent(60,100),
+            CTEvent(62,200),
+            CTEvent(64,300),
+            CTEvent(60,0),
+        ]
+        
+    def test_map_to_pitches(self):
+        rhythm_seq = CTSequence([
+            CTEvent(None,100),
+            CTEvent(None,200),
+            CTEvent(None,300),
+            CTEvent(None,400),
+            CTEvent(None,500),
+        ])
+        exploded = rhythm_seq |chain| map_to_pitches(self.src)
+        assert exploded.events == [
+            CTEvent(60,100),
+            CTEvent(62,200),
+            CTEvent(64,300),
+            CTEvent(60,400),
+            CTEvent(None,500),
+        ]
     
+    # def test_linear_linear_interpolate(self):
+        # interpolated = self.src |chain| linear_interpolate(2)
+        # print(interpolated.events)

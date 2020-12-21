@@ -58,9 +58,43 @@ def rotate(seq, no_times=1):
 def mutation(seq, threshold=0.5, transformations=[], constraints=[]):
     raise NotImplementedError
     
-@CTTransformer
-def linear_interpolate(seq, resolution=1):
-    raise NotImplementedError
+# @CTTransformer
+# def linear_interpolate(seq, resolution=1):
+    # events = seq.events[:]
+    # if len(events) is 1:
+        # return events
+        
+    # def _vectors(seq):
+        # vectors = []
+        # x = seq.events[0]
+        # for y in seq.events[1:]:
+            # vectors.append(y.pitch-x.pitch)
+            # x = y
+        # return vectors
+        
+    ## first item in the seq stays as-is
+    # i_events = iter(seq.events)
+    # i_vectors = iter(_vectors(seq))
+    # result = [next(i_events)]
+    
+    # pitch = result[0].pitch
+    # duration = result[0].duration
+    # while True:
+        # try:
+            # next_event = next(i_events)
+            # next_vector = next(i_vectors)
+            # pitch_increment = next_vector/resolution
+            # dur_increment = duration/resolution
+            # for x in range(resolution):
+                # result.append(CTEvent(
+                    # math.ceil((x * pitch_increment) + pitch),
+                    # dur_increment
+                # ))
+            # pitch = next_event.pitch
+            # duration = next_event.duration
+        # except StopIteration:
+            # break
+    # return result
     
 @CTTransformer
 def explode_intervals(seq, factor, mode="exponential"):
@@ -107,3 +141,26 @@ def rhythmic_augmentation(seq, multiplier):
 def rhythmic_diminution(seq, factor):
     return [CTEvent(e.pitch, e.duration/factor) for e in seq.events]
     
+@CTTransformer
+def map_to_pulses(seq, pulse_sequence):
+    iter_pulses = iter(pulse_sequence.events)
+    result = []
+    for e in seq.events:
+        try:
+            next_pulse = next(iter_pulses)
+            result.append(CTEvent(e.pitch, next_pulse.duration))
+        except StopIteration:
+            result.append(CTEvent(e.pitch, 0))
+    return result
+    
+@CTTransformer
+def map_to_pitches(seq, pitch_sequence):
+    iter_pitches = iter(pitch_sequence.events)
+    result = []
+    for e in seq.events:
+        try:
+            next_pitch = next(iter_pitches)
+            result.append(CTEvent(next_pitch.pitch, e.duration))
+        except StopIteration:
+            result.append(CTEvent(None, e.duration))
+    return result

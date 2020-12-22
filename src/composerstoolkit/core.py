@@ -58,6 +58,13 @@ class CTSequence():
     def to_midi_events(self, time_offset=0):
         raise NotImplementedError
         
+    def lookup(self, offset=0):
+        for e in self.events:
+            if e.duration > offset:
+                return e
+            offset = offset - e.duration
+        return None
+        
     def __getitem__(self, slice):
         start, stop, step = None, None, None
         try:

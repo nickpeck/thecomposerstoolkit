@@ -104,6 +104,20 @@ class CTSequenceTests(unittest.TestCase):
             CTEvent(62,100),
             CTEvent(64,100),
             CTEvent(60,100)]
+            
+    def test_lookup(self):
+        cts = CTSequence([
+            CTEvent(60,100),
+            CTEvent(62,100),
+            CTEvent(64,100),
+            CTEvent(60,100)])
+            
+        assert cts.lookup(0) == CTEvent(60,100)
+        assert cts.lookup(50) == CTEvent(60,100)
+        assert cts.lookup(99) == CTEvent(60,100)
+        assert cts.lookup(100) == CTEvent(62,100)
+        assert cts.lookup(399) == CTEvent(60,100)
+        assert cts.lookup(400) == None
     
 class CTGeneratorTests(unittest.TestCase):
     

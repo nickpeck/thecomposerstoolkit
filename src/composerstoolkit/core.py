@@ -59,8 +59,10 @@ class CTSequence():
         raise NotImplementedError
         
     def lookup(self, offset=0):
+        if offset < 0:
+            return None
         for e in self.events:
-            if e.duration > offset:
+            if e.duration >= offset:
                 return e
             offset = offset - e.duration
         return None

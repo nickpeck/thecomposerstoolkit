@@ -112,12 +112,14 @@ class CTSequenceTests(unittest.TestCase):
             CTEvent(64,100),
             CTEvent(60,100)])
             
+        assert cts.lookup(-1) == None
         assert cts.lookup(0) == CTEvent(60,100)
         assert cts.lookup(50) == CTEvent(60,100)
         assert cts.lookup(99) == CTEvent(60,100)
-        assert cts.lookup(100) == CTEvent(62,100)
-        assert cts.lookup(399) == CTEvent(60,100)
-        assert cts.lookup(400) == None
+        assert cts.lookup(100) == CTEvent(60,100)
+        assert cts.lookup(101) == CTEvent(62,100)
+        assert cts.lookup(400) == CTEvent(60,100)
+        assert cts.lookup(401) == None
     
 class CTGeneratorTests(unittest.TestCase):
     

@@ -45,15 +45,13 @@ midievent = namedtuple("midievent", ["pitch", "type", "time"])
     
 class CTSequence():
     
-    def __init__(self, events, previous_states=[]):
+    def __init__(self, events, memento=None):
         self.events = events
-        self.previous_states = previous_states
+        self.memento = memento
     
     def chain(self, f):
-        _states = self.previous_states[:]
-        _states.append(self.events)
         new_events = f(self)
-        return CTSequence(new_events, _states)
+        return CTSequence(new_events, self)
         
     def to_midi_events(self, time_offset=0):
         results = []
@@ -96,9 +94,7 @@ class CTSequence():
                 if not isinstance(sliced_events , list):
                     sliced_events = [sliced_events]
         
-        _states = self.previous_states[:]
-        _states.append(self.events)
-        return CTSequence(sliced_events, _states)
+        return CTSequence(sliced_events, self)
     
     
 def CTGenerator(functor):

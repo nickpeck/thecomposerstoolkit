@@ -51,7 +51,7 @@ class CTSequenceTests(unittest.TestCase):
     
     def test_sequence_creation(self):
         cts = CTSequence([CTEvent(62,100)])
-        assert cts.previous_states == []
+        assert cts.memento == None
         assert cts.events == [CTEvent(62,100)]
         
     def test_sequence_can_be_chained(self):
@@ -63,7 +63,7 @@ class CTSequenceTests(unittest.TestCase):
         
         new_seq = cts.chain(test_modifier)
         assert new_seq.events == [CTEvent(124,200)]
-        assert new_seq.previous_states == [[CTEvent(62,100)]]
+        assert new_seq.memento == cts
     
     def test_chain_using_infix_syntax(self):
         cts = CTSequence([CTEvent(62,100)])
@@ -74,7 +74,7 @@ class CTSequenceTests(unittest.TestCase):
         
         new_seq = cts |chain| test_modifier
         assert new_seq.events == [CTEvent(124,200)]
-        assert new_seq.previous_states == [[CTEvent(62,100)]]
+        assert new_seq.memento == cts
     
     def test_chain_using_infix_raises_exc_if_not_chainable(self):
         not_chainable = [CTEvent(62,100)]
@@ -105,6 +105,17 @@ class CTSequenceTests(unittest.TestCase):
             CTEvent(62,100),
             CTEvent(64,100),
             CTEvent(60,100)]
+            
+        sliced_portion = cts[0:3]
+        assert sliced_portion.events == [
+            CTEvent(60,100),
+            CTEvent(62,100),
+            CTEvent(64,100)]
+            
+        sliced_with_step = cts[0:3:2]
+        assert sliced_with_step.events == [
+            CTEvent(60,100),
+            CTEvent(64,100)]
             
     def test_to_midi_events(self):
         cts = CTSequence([
@@ -146,7 +157,7 @@ class CTGeneratorTests(unittest.TestCase):
         my_functor = lambda :  [CTEvent(60,100), CTEvent(62,50)]
         my_generator = CTGenerator(my_functor)
         new_seq = my_generator()
-        assert new_seq.previous_states == []
+        assert new_seq.memento == None
         assert new_seq.events == [CTEvent(60,100), CTEvent(62,50)]
         
     def test_ctgenerator_creation_decorator(self):
@@ -155,5 +166,5 @@ class CTGeneratorTests(unittest.TestCase):
             return [CTEvent(pitch,duration) for i in range(n_events)]
         
         new_seq = my_functor(64,400,3)
-        assert new_seq.previous_states == []
+        assert new_seq.memento == None
         assert new_seq.events == [CTEvent(64,400), CTEvent(64,400), CTEvent(64,400)]

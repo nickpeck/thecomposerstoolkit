@@ -41,7 +41,7 @@ class CTEvent(_ctevent):
         raise NotImplementedError
     
     
-_midievent = namedtuple("midievent", ["pitch", "dynamic", "timeoffset"])
+midievent = namedtuple("midievent", ["pitch", "type", "time"])
     
 class CTSequence():
     
@@ -56,7 +56,21 @@ class CTSequence():
         return CTSequence(new_events, _states)
         
     def to_midi_events(self, time_offset=0):
-        raise NotImplementedError
+        results = []
+        for e in self.events:
+            results.append(midievent(
+                pitch = e.pitch,
+                type = "NOTE_ON",
+                time = time_offset
+            ))
+            results.append(midievent(
+                pitch = e.pitch,
+                type = "NOTE_OFF",
+                time = time_offset + e.duration
+            ))
+            time_offset = time_offset + e.duration
+        results.sort(key=lambda x: x.time, reverse=False)
+        return results
         
     def lookup(self, offset=0):
         if offset < 0:

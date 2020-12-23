@@ -1,6 +1,7 @@
 import unittest
 
-from composerstoolkit.core import CTEvent, CTSequence, CTGenerator, chain, NotChainableException
+from composerstoolkit.core import (CTEvent, CTSequence, CTGenerator, 
+chain, NotChainableException, midievent)
 
 class CTEventTests(unittest.TestCase):
     
@@ -104,6 +105,24 @@ class CTSequenceTests(unittest.TestCase):
             CTEvent(62,100),
             CTEvent(64,100),
             CTEvent(60,100)]
+            
+    def test_to_midi_events(self):
+        cts = CTSequence([
+            CTEvent(60,100),
+            CTEvent(62,100),
+            CTEvent(64,100),
+            CTEvent(60,100)])
+            
+        midi = cts.to_midi_events()
+        assert midi == [
+            midievent(pitch=60, type="NOTE_ON", time=0),
+            midievent(pitch=60, type="NOTE_OFF", time=100),
+            midievent(pitch=62, type="NOTE_ON", time=100),
+            midievent(pitch=62, type="NOTE_OFF", time=200),
+            midievent(pitch=64, type="NOTE_ON", time=200),
+            midievent(pitch=64, type="NOTE_OFF", time=300),
+            midievent(pitch=60, type="NOTE_ON", time=300),
+            midievent(pitch=60, type="NOTE_OFF", time=400)]
             
     def test_lookup(self):
         cts = CTSequence([

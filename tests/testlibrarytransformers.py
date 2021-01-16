@@ -207,11 +207,7 @@ class CTLibraryTransformerTests(unittest.TestCase):
         
     def test_gated_transformer(self):
         input = CTSequence([
-            CTEvent(60,100),
-            CTEvent(60,100),
-            CTEvent(60,100),
-            CTEvent(60,100),
-            CTEvent(60,100),
+            CTEvent(60,100) for i in range(5)
         ])
         gate = CTSequence([
             CTEvent(1,100),
@@ -227,4 +223,53 @@ class CTLibraryTransformerTests(unittest.TestCase):
             CTEvent(61,100),
             CTEvent(60,100),
             CTEvent(61,100),
+        ]
+        
+    def test_gated_transformer_complex_gate_lengths(self):
+        input = CTSequence([
+            CTEvent(60,100) for i in range(6)
+        ])
+        gate = CTSequence([
+            CTEvent(None,100),
+            CTEvent(None,100),
+            CTEvent(1,100),
+            CTEvent(1,100),
+            CTEvent(1,100),
+            CTEvent(None,100),
+        ])
+        transformed = input |chain| transpose(1, gate=boolean_gate(gate)) 
+        assert transformed.events == [
+            CTEvent(60,100),
+            CTEvent(60,100),
+            CTEvent(61,100),
+            CTEvent(61,100),
+            CTEvent(61,100),
+            CTEvent(60,100),
+        ]
+        
+    def test_gated_transformer_zero_len_input(self):
+        input = CTSequence([])
+        gate = CTSequence([
+            CTEvent(1,100),
+            CTEvent(None,100),
+            CTEvent(1,100),
+            CTEvent(None,100),
+            CTEvent(1,100),
+        ])
+        transformed = input |chain| transpose(1, gate=boolean_gate(gate)) 
+        assert transformed.events == []
+        
+    def test_gated_transformer_gate_shorter_than_input(self):
+        input = CTSequence([CTEvent(60,100) for i in range(5)])
+        gate = CTSequence([
+            CTEvent(1,100),
+            CTEvent(None,100)
+        ])
+        transformed = input |chain| transpose(1, gate=boolean_gate(gate))
+        assert transformed.events == [
+            CTEvent(61,100),
+            CTEvent(60,100),
+            CTEvent(60,100),
+            CTEvent(60,100),
+            CTEvent(60,100),
         ]

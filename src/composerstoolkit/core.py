@@ -124,24 +124,69 @@ def boolean_gate(gate):
     def transform(functor, instance, *args, **kwargs):
         nonlocal gate
         offset = 0
-        result = CTSequence([])
-        _sequence = CTSequence(instance.events[:1])
-        toggle_state = False
-        
-        for e in instance.events:
+        result = []
+        buffer = [] #toggle state, sequence
+        past_toggle_state = False
+        for i in range(len(instance.events)):
+            e = instance.events[i]
             offset = offset + e.duration
-            gate_value = gate.lookup(offset)
+            cur_gate_event = gate.lookup(offset)
+            # print("-"*20)
+            # print("result", result)
+            # print("buffer", buffer)
+            # print("cur_gate_event", cur_gate_event)
             
-            # state flipped?
-            toggle = (gate_value.pitch is not None)
-            if toggle_state != toggle:
-                if toggle: # changed to ON
-                    _args = [_sequence] + list(args)
-                    _sequence = CTSequence(functor(*_args, **kwargs))
-                result.events = result.events + _sequence.events
-                _sequence = CTSequence([])
+            if cur_gate_event is None:
+                # print("GOT HERE ONE")
+                # # there is no event at this offset
+                # # just append 'e' to result
+                buffer = buffer + [e]
+                past_toggle_state = False
+                continue
+            
+            cur_toggle_state = (cur_gate_event.pitch is not None)
+            has_changed = cur_toggle_state != past_toggle_state
+            # print("cur_toggle_state", cur_toggle_state)
+            # print("past_toggle_state", past_toggle_state)
+            
+            if not has_changed or i == 0:
+                # print("GOT HERE TWO")
+                # no change, just add to the buffer
+                buffer = buffer + [e]
+            
+            elif has_changed and cur_toggle_state:
+                # print("GOT HERE THREE")
+                # the gate has changed to 'on'
+                # add the buffer to result
+                result = result + buffer
+                buffer = [e]
+            
+            elif has_changed and not cur_toggle_state and i:
+                # print("GOT HERE FOUR")
+                # the gate has changed to 'off'
+                # transform the contents of buffer
+                _args = [CTSequence(buffer)] + list(args)
+                buffer = functor(*_args, **kwargs)
+                # add to result
+                result = result + buffer
+                buffer = [e]
                 
-            toggle_state = toggle
-            _sequence.events.append(e)
-        return result.events
+            past_toggle_state = cur_toggle_state
+
+
+            # print("     buffer", buffer)
+            # print("     result", result)
+        # terminal condition
+        if len(buffer) and cur_toggle_state:
+            # there are items left in the buffer
+            # state is ON is transform and add to result
+            _args = [CTSequence(buffer)] + list(args)
+            buffer = functor(*_args, **kwargs)
+            # no transform, just add to result
+            result = result + buffer
+        if len(buffer) and not cur_toggle_state:
+            # add to result
+            result = result + buffer
+        # print("END ", result)
+        return result
     return transform

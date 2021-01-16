@@ -2,6 +2,7 @@ import unittest
 
 from composerstoolkit.core import (CTEvent, CTSequence, CTGenerator, 
 chain, NotChainableException, midievent)
+from composerstoolkit.builder.permutators import permutate
 
 class CTEventTests(unittest.TestCase):
     
@@ -154,6 +155,68 @@ class CTSequenceTests(unittest.TestCase):
         assert cts.lookup(101) == CTEvent(62,100)
         assert cts.lookup(400) == CTEvent(60,100)
         assert cts.lookup(401) == None
+        
+    def test_sequence_to_pitch_Set(self):
+        cts = CTSequence([
+            CTEvent(67,100),
+            CTEvent(60,100),
+            CTEvent(62,100),
+            CTEvent(64,100),
+            CTEvent(60,100)])
+        assert cts.to_pitch_set() == {60,62,64,67}
+       
+    def test_sequence_to_pitch_class_Set(self):
+        cts = CTSequence([
+            CTEvent(67,100),
+            CTEvent(60,100),
+            CTEvent(62,100),
+            CTEvent(64,100),
+            CTEvent(60,100)])
+        assert cts.to_pitch_class_set() == {0,2,4,7}
+       
+    def test_get_pitches_and_durations(self):
+        cts = CTSequence([
+            CTEvent(67,100),
+            CTEvent(60,100),
+            CTEvent(62,200),
+            CTEvent(64,100),
+            CTEvent(60,100)])
+            
+        assert cts.pitches == [67,60,62,64,60]
+        assert cts.durations == [100,100,200,100,100]
+       
+class PermutationsTests(unittest.TestCase):
+    
+    def test_permutate_single_generations(self):
+        assert permutate([2,1,1,2]) == [
+            (1, 2, 1, 2), 
+            (1, 1, 2, 2), 
+            (2, 1, 2, 1), 
+            (2, 2, 1, 1), 
+            (2, 1, 1, 2), 
+            (1, 2, 2, 1)]
+    
+    def test_permutate_multiple_generations(self):
+        assert permutate([2,1,1,2], 2) == [
+            (1, 2, 1, 2), 
+            (1, 1, 2, 2), 
+            (2, 1, 2, 1), 
+            (2, 2, 1, 1), 
+            (2, 1, 1, 2), 
+            (1, 2, 2, 1),
+            (1, 1, 1, 1, 1, 1)]
+        # True indicates to return the last generation only:
+        assert permutate([2,1,1,2], 2, True) == [(1, 1, 1, 1, 1, 1)]
+        assert permutate([4,5], 3) == [
+            (1, 2, 1, 1, 1, 1, 1, 1), (5, 4), 
+            (2, 3, 2, 2), (2, 2, 3, 2), 
+            (1, 1, 1, 1, 2, 1, 1, 1), 
+            (2, 1, 1, 1, 1, 1, 1, 1), (4, 5), 
+            (1, 1, 1, 1, 1, 1, 2, 1), 
+            (1, 1, 1, 1, 1, 1, 1, 2), (3, 2, 2, 2), 
+            (1, 1, 1, 1, 1, 2, 1, 1), 
+            (1, 1, 1, 2, 1, 1, 1, 1), 
+            (1, 1, 2, 1, 1, 1, 1, 1), (2, 2, 2, 3)]
     
 class CTGeneratorTests(unittest.TestCase):
     

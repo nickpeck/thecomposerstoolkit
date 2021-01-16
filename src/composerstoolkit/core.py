@@ -70,6 +70,20 @@ class CTSequence():
         results.sort(key=lambda x: x.time, reverse=False)
         return results
         
+    @property
+    def pitches(self):
+        return [e.pitch for e in self.events]
+    
+    @property
+    def durations(self):
+        return [e.duration for e in self.events]
+        
+    def to_pitch_set(self):
+        return {*[e.pitch for e in self.events]}
+        
+    def to_pitch_class_set(self):
+        return {*[e.pitch % 12 for e in self.events]}
+        
     def lookup(self, offset=0):
         if offset < 0:
             return None

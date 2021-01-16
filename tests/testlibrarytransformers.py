@@ -1,6 +1,6 @@
 import unittest
 
-from composerstoolkit.core import CTEvent, CTSequence, chain
+from composerstoolkit.core import CTEvent, CTSequence, chain, boolean_gate
 from composerstoolkit.builder.transformers import (loop, transpose, invert,
     retrograde, rhythmic_augmentation, rhythmic_diminution,
     explode_intervals, rotate, map_to_pulses, map_to_pitches)
@@ -204,3 +204,27 @@ class CTLibraryTransformerTests(unittest.TestCase):
     # def test_linear_linear_interpolate(self):
         # interpolated = self.src |chain| linear_interpolate(2)
         # print(interpolated.events)
+        
+    def test_gated_transformer(self):
+        input = CTSequence([
+            CTEvent(60,100),
+            CTEvent(60,100),
+            CTEvent(60,100),
+            CTEvent(60,100),
+            CTEvent(60,100),
+        ])
+        gate = CTSequence([
+            CTEvent(1,100),
+            CTEvent(None,100),
+            CTEvent(1,100),
+            CTEvent(None,100),
+            CTEvent(1,100),
+        ])
+        transformed = input |chain| transpose(1, gate=boolean_gate(gate)) 
+        assert transformed.events == [
+            CTEvent(61,100),
+            CTEvent(60,100),
+            CTEvent(61,100),
+            CTEvent(60,100),
+            CTEvent(61,100),
+        ]

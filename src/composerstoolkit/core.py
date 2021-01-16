@@ -30,7 +30,7 @@ class CTEvent(_ctevent):
     
     def __str__(self):
         return "<CTEvent {0}, {1}>".format(self.pitch, self.duration)
-        
+    
     def __add__(self, other):
         return CTSequence([self, other])
     
@@ -112,6 +112,36 @@ class CTTransformer():
         def transform(instance):
             nonlocal args
             nonlocal kwargs
+            if "gate" in kwargs.keys():
+                gate = kwargs["gate"]
+                del kwargs["gate"]
+                return gate(self._functor, instance, *args, **kwargs)
             args = [instance] + list(args)
             return self._functor(*args, **kwargs)
         return transform
+    
+def boolean_gate(gate):
+    def transform(functor, instance, *args, **kwargs):
+        nonlocal gate
+        offset = 0
+        result = CTSequence([])
+        _sequence = CTSequence(instance.events[:1])
+        toggle_state = False
+        
+        for e in instance.events:
+            offset = offset + e.duration
+            gate_value = gate.lookup(offset)
+            
+            # state flipped?
+            toggle = (gate_value.pitch is not None)
+            if toggle_state != toggle:
+                if toggle: # changed to ON
+                    _args = [_sequence] + list(args)
+                    _sequence = CTSequence(functor(*_args, **kwargs))
+                result.events = result.events + _sequence.events
+                _sequence = CTSequence([])
+                
+            toggle_state = toggle
+            _sequence.events.append(e)
+        return result.events
+    return transform

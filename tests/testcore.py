@@ -54,6 +54,10 @@ class CTSequenceTests(unittest.TestCase):
         assert cts.memento == None
         assert cts.events == [CTEvent(62,100)]
         
+    def sequence(self):
+        cts = CTSequence([CTEvent(62,100)])
+        assert str(cts) == "<CTSequence [CTEvent(62,100)]>"
+        
     def test_sequence_can_be_chained(self):
         cts = CTSequence([CTEvent(62,100)])
         

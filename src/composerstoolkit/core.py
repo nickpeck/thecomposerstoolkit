@@ -95,6 +95,9 @@ class CTSequence():
                     sliced_events = [sliced_events]
         
         return CTSequence(sliced_events, self)
+        
+    def __str__(self):
+        return "<CTSequence {}>".format(self.events)
     
     
 def CTGenerator(functor):

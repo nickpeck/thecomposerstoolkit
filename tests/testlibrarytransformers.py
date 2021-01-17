@@ -81,6 +81,17 @@ class CTLibraryTransformerTests(unittest.TestCase):
             CTEvent(61,100),
         ]
         
+    def test_transpose_multiple_invocations(self):
+        functor = transpose(1)
+        transposed1 = self.src |chain| functor
+        transposed2 = transposed1 |chain| functor
+        assert transposed2.events == [
+            CTEvent(62,100),
+            CTEvent(64,100),
+            CTEvent(66,100),
+            CTEvent(62,100),
+        ]
+        
     def test_transpose_down(self):
         transposed = self.src |chain| transpose(-1)
         assert transposed.events == [

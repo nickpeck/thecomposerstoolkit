@@ -119,6 +119,25 @@ def CTGenerator(functor):
         return CTSequence(functor(*args, **kwargs))
     return getConfig
     
+import functools
+class reprwrapper(object):
+    """helper to override __repr__ for a function for debugging purposes
+    see https://stackoverflow.com/questions/10875442/possible-to-change-a-functions-repr-in-python
+    """
+    def __init__(self, repr, func):
+        self._repr = repr
+        self._func = func
+        functools.update_wrapper(self, func)
+    def __call__(self, *args, **kw):
+        return self._func(*args, **kw)
+    def __repr__(self):
+        return self._repr(self._func)
+        
+def withrepr(reprfun):
+    """decorator for reprwrapper"""
+    def _wrap(func):
+        return reprwrapper(reprfun, func)
+    return _wrap
     
 class CTTransformer():
     
@@ -126,16 +145,24 @@ class CTTransformer():
         self._functor = functor
     
     def __call__(self, *args, **kwargs):
+        @withrepr(
+            lambda x: "<CTTransformer: {}{}>".format(
+                self._functor.__name__, args + tuple(kwargs.items())))
         def transform(instance):
             nonlocal args
             nonlocal kwargs
+            _kwargs = kwargs
             if "gate" in kwargs.keys():
-                gate = kwargs["gate"]
-                del kwargs["gate"]
-                return gate(self._functor, instance, *args, **kwargs)
-            args = [instance] + list(args)
-            return self._functor(*args, **kwargs)
+                gate = _kwargs["gate"]
+                del _kwargs["gate"]
+                _args = args[:]
+                return gate(self._functor, instance, *_args, **_kwargs)
+            _args = [instance] + list(args)
+            return self._functor(*_args, **_kwargs)
         return transform
+    
+    def __str__(self):
+        return "<CTTransformer : {}>".format(self._functor.__name__)
     
 def boolean_gate(gate):
     def transform(functor, instance, *args, **kwargs):

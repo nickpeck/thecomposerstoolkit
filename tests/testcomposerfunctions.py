@@ -8,7 +8,9 @@ from composerstoolkit.composers.constraints import constraint_in_set
 class SolversTests(unittest.TestCase):
     
     def test_random_loop_transformation(self):
-        print("-----------",str(transpose(1)))
+        """Simple test of growing a sequence using a 
+        single operation
+        """
         base_seq = CTSequence([
             CTEvent(60,100),
         ])
@@ -19,34 +21,27 @@ class SolversTests(unittest.TestCase):
         )
         
         evt1 = next(solver)
-        print(evt1)
         assert evt1.pitches[0] == 61
         evt2 = next(solver)
-        print(evt2)
         assert evt2.pitches[0] == 62
         
-    # def test_random_loop_transformation_w_constraints(self):
+    def test_random_loop_transformation_w_constraints(self):
     
-        # @CTTransformer
-        # def no_transform(seq):
-            # """Transpose all pitches in the 
-            # given sequence by a constant interval.
-            # """
-            # result = seq.events[-1]
-            # return result
-    
-        # base_seq = CTSequence([
-            # CTEvent(70,100),
-        # ])
+        base_seq = CTSequence([
+            CTEvent(70,100),
+        ])
         
-        # target_note_range = range(60,80)
+        target_note_range = set(list(range(60,80)))
         
-        # solver = random_loop_transformation(
-            # base_seq,
-            # [(transpose(5), 0.1), (no_transform(), 0.1)],
-            # [constraint_in_set(target_note_range)]
-        # )
-        
-        # for i in range(5):
-            # evt = next(solver)
-            # assert evt.pitches[0] in target_note_range
+        solver = random_loop_transformation(
+            base_seq,
+            # transformations dicate moving up or down in tones:
+            [(transpose(2), 0.5), (transpose(-2), 0.5)],
+            [constraint_in_set(target_note_range)]
+        )
+        # generate 100 items, and assert at each stage
+        # that the overall sequence remains within the
+        # specifed range
+        for i in range(100):
+            evt = next(solver)
+            assert evt.pitches[0] in target_note_range

@@ -6,7 +6,7 @@ from composerstoolkit.core import (CTEvent, CTSequence)
 
 def random_loop_transformation(base_seq, mutators=[lambda x: x], 
     constraints=[lambda x,y: True], adjust_weights=True):
-    """Creates a generator function that grows a base sequence by performing
+    """Returns a generator function that grows a base sequence by performing
     a weighted random mutation to it
     
     base_seq - CTSequence instance
@@ -17,28 +17,24 @@ def random_loop_transformation(base_seq, mutators=[lambda x: x],
         transformation fails to meet the constraints, it will be rejected and a new
         transformation will be choosen. Can be empty.
     adjust_weights - boolean, if True, will increase the weighting of a mutator each time it
-        is choosen.
+        is choosen and decrease the weighting each time it results in a failed outcome.
     """
     try:
         weights = [y for (x,y) in mutators]
         mutators = [x for (x,y) in mutators]
     except:
         weights = [1 for i in range(len(mutators))]
-    # print("weights------------", weights)
     while True:
         mutating = True
         context = {
             "previous" : base_seq
         }
         while mutating:
-            # print("weights", weights)
-            # print("mutators", mutators)
-            # print("base_seq", base_seq)
             # choose a random weighted transformation to apply
+
             mutator = random.choices(mutators, weights)[0]
-            # print(mutator)
-            candidate = mutator(base_seq)
-            # print("mutated", mutator, candidate)
+
+            candidate = CTSequence(mutator(base_seq))
             passed=True
             # test that the whole sequence meets the given constraints
             # cycle until we have a sequence that passes checks
@@ -47,16 +43,16 @@ def random_loop_transformation(base_seq, mutators=[lambda x: x],
                     passed = False
                     break
             if not passed:
-                # print("mutation failed to meet constrants, mutating again")
+                # adjust weights, negative bias
+                if adjust_weights and weights[mutators.index(mutator)] > 0:
+                    weights[mutators.index(mutator)] = weights[mutators.index(mutator)] - 0.1
                 continue
             mutating = False
-            # print("successful new mutation",mutator, base_seq, "=>", candidate)
             
-            base_seq = CTSequence(candidate)
-            #adjust weights
-            if adjust_weights:
+            base_seq = candidate
+            # adjust weights, positive bias
+            if adjust_weights and weights[mutators.index(mutator)] < 1:
                 weights[mutators.index(mutator)] = weights[mutators.index(mutator)] + 0.1
-                # print("weights",weights)
         res =  base_seq[-1]
         yield res
     

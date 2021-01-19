@@ -1,9 +1,6 @@
 def constraint_in_set(_set = range(0,128)):
     def f(seq, context):
-        for p in seq:
-            if p not in _set:
-                return False
-        return True
+        return seq.to_pitch_set().issubset(_set)
     return f
     
 def constraint_no_repeated_adjacent_notes():

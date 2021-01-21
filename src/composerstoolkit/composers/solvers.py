@@ -94,7 +94,6 @@ def random_walk_backtracking(starting_pitch=60,
             seq = seq[:-1]
             tick = tick -1
             choices = list(range(NOTE_MIN, NOTE_MAX))
-            #print(tick)
             if tick == 0:
                 raise UnsatisfiableException("Unable to solve!")
                 break
@@ -106,17 +105,56 @@ def random_walk_backtracking(starting_pitch=60,
             results.update([constraint(context)])
         candidate = seq[:]
         candidate.append(note)
-        #print(candidate)
         if results == {True} and candidate not in dead_paths:
             seq.append(note)
             tick = tick + 1
             choices = list(range(NOTE_MIN, NOTE_MAX))
-            #print(tick)
         else:
             #this choice was bad, so we must exclude it
             choices.remove(note)
     return cantus(seq)
     
     
-def backtracking_solver_w_heuristics(seed=[60], length=64, constraints=[lambda x: True], heuristics=[lambda context,choices,weights: weights]):
+def random_walk_backtracking_w_heuristics(starting_pitch=60,
+        n_events=8, constraints=[lambda x: True], 
+        heuristics=[lambda context,choices,weights: weights]):
+    tick = 0
+    seq = [starting_pitch]
+    if n_events == 1:
+        return cantus(seq)
+    choices = list(range(NOTE_MIN, NOTE_MAX))
+    dead_paths = []
+    while tick < n_events-1:
+        # lets use a very basic random choice to begin with and see how far we go
+        weights= [1.0 for i in range(len(choices))]
+        for heuristic in heuristics:
+            weights = heuristic(tick, choices, weights)
+        try:
+            note = random.choices(choices, weights)[0]
+        except IndexError:
+            # this was thrown because we ran out of choices (we have reached a dead-end)
+            # so you back-track... do it again....
+            dead_paths.append(seq[:])
+            seq = seq[:-1]
+            tick = tick -1
+            choices = list(range(NOTE_MIN, NOTE_MAX))
+            if tick == 0:
+                raise UnsatisfiableException("Unable to solve!")
+                break
+            else:
+                continue
+        context = (note, cantus(seq + [note]), tick)
+        results = set()
+        for constraint in constraints:
+            results.update([constraint(context)])
+        candidate = seq[:]
+        candidate.append(note)
+        if results == {True} and candidate not in dead_paths:
+            seq.append(note)
+            tick = tick + 1
+            choices = list(range(NOTE_MIN, NOTE_MAX))
+        else:
+            #this choice was bad, so we must exclude it
+            choices.remove(note)
+    return cantus(seq)
     pass

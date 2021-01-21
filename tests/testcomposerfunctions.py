@@ -1,10 +1,14 @@
 import unittest
 
-from composerstoolkit.core import (CTEvent, CTSequence, CTGenerator, CTTransformer)
-from composerstoolkit.composers.solvers import (random_walk,
-    random_walk_backtracking)
+from composerstoolkit.core import (CTEvent, 
+    CTSequence, CTGenerator, CTTransformer)
+from composerstoolkit.composers.solvers import (
+    random_walk, random_walk_backtracking,
+    random_walk_backtracking_w_heuristics)
 from composerstoolkit.builder.transformers import transpose
 from composerstoolkit.composers.constraints import constraint_in_set
+from composerstoolkit.composers.heuristics import (
+    heuristic_trend_upwards, heuristic_sine_shape)
 from composerstoolkit.resources.scales import C_major
 
 class SolversTests(unittest.TestCase):
@@ -68,3 +72,32 @@ class SolversTests(unittest.TestCase):
         )
         
         assert seq.pitches == [60]
+        
+    def test_heuristics_solver_trend_upwards(self):
+        
+        seq = random_walk_backtracking_w_heuristics(
+            60,
+            8, 
+            [
+                constraint_in_set(C_major),
+            ],
+            [
+                heuristic_trend_upwards(60)
+            ])
+        
+        assert len(seq.events) == 8
+        
+    def test_heuristics_solver_sine(self):
+        
+        seq_length = 16
+        seq = random_walk_backtracking_w_heuristics(
+            60,
+            seq_length, 
+            [
+                constraint_in_set(C_major),
+            ],
+            [
+                heuristic_sine_shape(60, 30, seq_length, 1)
+            ])
+        
+        assert len(seq.events) == 16

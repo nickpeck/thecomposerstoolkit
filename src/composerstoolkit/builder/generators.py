@@ -6,7 +6,7 @@ def cantus(list_pitches=[]):
     
 @CTGenerator
 def steady_pulse(ticks=0, n_pulses=1):
-    return[CTEvent(None, ticks) for i in range(n_pulses)]
+    return [CTEvent(None, ticks) for i in range(n_pulses)]
     
 @CTGenerator
 def collision_pattern(x, y):

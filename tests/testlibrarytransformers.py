@@ -284,3 +284,13 @@ class CTLibraryTransformerTests(unittest.TestCase):
             CTEvent(60,100),
             CTEvent(60,100),
         ]
+        
+    def test_i_can_compose_transformers(self):
+        transformed = self.src.chain(transpose(1)).chain(transpose(1))
+        assert transformed.events == [
+            CTEvent(62,100),
+            CTEvent(64,100),
+            CTEvent(66,100),
+            CTEvent(62,100),
+        ]
+        

@@ -5,6 +5,7 @@ from composerstoolkit.core import (CTEvent,
 from composerstoolkit.composers.solvers import (
     random_walk, random_walk_backtracking,
     random_walk_backtracking_w_heuristics)
+from composerstoolkit.composers.evolutionary import Evolutionary, Extinction
 from composerstoolkit.builder.transformers import transpose
 from composerstoolkit.composers.constraints import constraint_in_set
 from composerstoolkit.composers.heuristics import (
@@ -101,3 +102,33 @@ class SolversTests(unittest.TestCase):
             ])
         
         assert len(seq.events) == 16
+        
+    def test_evolutionary_composer_defaults(self):
+        def fitness(seq):
+            return seq.to_pitch_set().issubset(C_major)
+        evo = Evolutionary(
+            transformations=[
+                (transpose(1), 0.5),
+                (transpose(-1), 0.5),
+                (transpose(2), 0.5),
+                (transpose(-2), 0.5)],
+            fitness_func=fitness)
+        try:
+            seq,transformations = evo()
+        except Extinction:
+            seq,transformations = evo()
+        
+        assert len(seq.events) == 8
+        assert seq.to_pitch_set().issubset(C_major)
+        
+    def test_evolutionary_composer_exception_insufficent_parents(self):
+        def fitness(seq):
+            return seq.to_pitch_set().issubset(C_major)
+        evo = Evolutionary(
+            transformations=[
+                (transpose(1), 0.5)],
+            fitness_func=fitness)
+        
+        with self.assertRaises(Extinction) as context:
+            seq,transformations = evo()
+        

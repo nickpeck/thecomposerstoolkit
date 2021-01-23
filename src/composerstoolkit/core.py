@@ -112,6 +112,10 @@ class CTSequence():
         
     def __str__(self):
         return "<CTSequence {}>".format(self.events)
+        
+    def __add__(self, other):
+        events = self.events[:] + other.events[:]
+        return CTSequence(events)
     
     
 def CTGenerator(functor):

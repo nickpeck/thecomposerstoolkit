@@ -179,13 +179,8 @@ def boolean_gate(gate):
             e = instance.events[i]
             offset = offset + e.duration
             cur_gate_event = gate.lookup(offset)
-            # print("-"*20)
-            # print("result", result)
-            # print("buffer", buffer)
-            # print("cur_gate_event", cur_gate_event)
             
             if cur_gate_event is None:
-                # print("GOT HERE ONE")
                 # # there is no event at this offset
                 # # just append 'e' to result
                 buffer = buffer + [e]
@@ -194,23 +189,18 @@ def boolean_gate(gate):
             
             cur_toggle_state = (cur_gate_event.pitch is not None)
             has_changed = cur_toggle_state != past_toggle_state
-            # print("cur_toggle_state", cur_toggle_state)
-            # print("past_toggle_state", past_toggle_state)
             
             if not has_changed or i == 0:
-                # print("GOT HERE TWO")
                 # no change, just add to the buffer
                 buffer = buffer + [e]
             
             elif has_changed and cur_toggle_state:
-                # print("GOT HERE THREE")
                 # the gate has changed to 'on'
                 # add the buffer to result
                 result = result + buffer
                 buffer = [e]
             
             elif has_changed and not cur_toggle_state and i:
-                # print("GOT HERE FOUR")
                 # the gate has changed to 'off'
                 # transform the contents of buffer
                 _args = [CTSequence(buffer)] + list(args)
@@ -221,9 +211,6 @@ def boolean_gate(gate):
                 
             past_toggle_state = cur_toggle_state
 
-
-            # print("     buffer", buffer)
-            # print("     result", result)
         # terminal condition
         if len(buffer) and cur_toggle_state:
             # there are items left in the buffer
@@ -235,6 +222,30 @@ def boolean_gate(gate):
         if len(buffer) and not cur_toggle_state:
             # add to result
             result = result + buffer
-        # print("END ", result)
         return result
     return transform
+    
+    
+class Container():
+    def __init__(self,  **kwargs):
+        self.options = {
+            "bpm": 120,
+            "playback_rate": 1
+        }
+        self.sequences = []
+        self.options.update(kwargs)
+        
+    def add_sequence(self, offset, seq, channel_no=None):
+        if channel_no is None:
+            channel_no = len(self.sequences)
+        self.sequences.append((channel_no, offset, seq))
+        
+    def get_playback_events(self):
+        all_midi_events = []
+        for (channel_no, offset,seq) in self.sequences:
+            for me in seq.to_midi_events(offset):
+                all_midi_events.append(midievent(me.pitch, me.type, me.time))
+        all_midi_events = sorted(all_midi_events, key=lambda x: x.time)
+        return all_midi_events
+        
+        

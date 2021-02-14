@@ -10,11 +10,30 @@ class Extinction(Exception): pass
 class Evolutionary():
 
     def __init__(self, **kwargs):
-        """
-        args:
-        get_offspring (breed?)
-        choose_parents
-        fitness_func
+        """Generates a musical sequence using an evolutionary-inspired process.
+        The process makes use of a pool of weighted candidate functions capable of 
+        transforming a givwn musical cell. At each cycle, a weighted random selection 
+        process selects a candidate from the pool to transform the base sequence.
+        Following this, a user-defined fitness function is used to accept or reject
+        the resulting sequence.
+        Parents that combine to yeild a successful subject are weighted higher, those
+        that yeild an unsuccessful one are weighted down until they reach a weighting
+        of zero, and are removed from the pool.
+        In addition, a random mutation can occur at each iteration, yeilding a
+        new candidate transformer function.
+        
+        optional kwargs:
+        - mutation_threshold - 0.0...1.0 dictates the chance of a random mutation
+            occuring at each iteration. This results in a new addition to the pool
+        - transformations list of CTTransformer functions, each weighted, eg:
+            [(t1, weight), (t2, weight)...]
+        - get_offspring (breed?)
+        - choose_parents f(parents, weights), should return a 'breeding pair'
+            from the pool of candidates:
+            ie (parent1, weighting), (parent2, weighting)
+        - fitness_func f(seq) -> bool used to evalute 'offspring' (sequences).
+            parents of successful offspring will gain a higher weighting
+        - debug process should print debug statements (default False)
         """
         try:
             self._fitness_func = kwargs["fitness_func"]
@@ -132,5 +151,5 @@ class Evolutionary():
                 if w2-score_down > 0: 
                     self.transformations[i2] = (trans2, w2-score_down)
                 else:
-                    del self.transformations[i2] #farewell noble beast
+                    del self.transformations[i2]
         return (result, self.transformations)

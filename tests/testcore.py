@@ -1,7 +1,7 @@
 import unittest
 
 from composerstoolkit.core import (CTEvent, CTSequence, CTGenerator, 
-chain, NotChainableException, midievent)
+chain, NotChainableException, midievent, Container)
 from composerstoolkit.builder.permutators import permutate
 
 class CTEventTests(unittest.TestCase):
@@ -235,3 +235,55 @@ class CTGeneratorTests(unittest.TestCase):
         new_seq = my_functor(64,400,3)
         assert new_seq.memento == None
         assert new_seq.events == [CTEvent(64,400), CTEvent(64,400), CTEvent(64,400)]
+        
+class ContainerTests(unittest.TestCase):
+    
+    def test_build_container(self):
+        container = Container()
+        cts = CTSequence([
+            CTEvent(60,100),
+            CTEvent(62,100)])
+            
+        container.add_sequence(0, cts)
+        events = container.get_playback_events()
+        assert events[0] == midievent(pitch=60, type='NOTE_ON', time=0)
+        assert events[1] == midievent(pitch=60, type='NOTE_OFF', time=100)
+        assert events[2] == midievent(pitch=62, type='NOTE_ON', time=100)
+        assert events[3] == midievent(pitch=62, type='NOTE_OFF', time=200)
+        
+    def test_w_offset(self):
+        container = Container()
+        cts = CTSequence([
+            CTEvent(60,100),
+            CTEvent(62,100)])
+            
+        container.add_sequence(100, cts)
+        events = container.get_playback_events()
+        assert events == [
+            midievent(pitch=60, type='NOTE_ON', time=100),
+            midievent(pitch=60, type='NOTE_OFF', time=200),
+            midievent(pitch=62, type='NOTE_ON', time=200),
+            midievent(pitch=62, type='NOTE_OFF', time=300)]
+        
+    def test_two_channels_offset(self):
+        container = Container()
+        cts1 = CTSequence([
+            CTEvent(60,100),
+            CTEvent(62,100)])
+            
+        cts2 = CTSequence([
+            CTEvent(60,100),
+            CTEvent(55,100)])
+            
+        container.add_sequence(0, cts1)
+        container.add_sequence(50, cts2)
+        events = container.get_playback_events()
+        assert events == [
+            midievent(pitch=60, type='NOTE_ON', time=0),
+            midievent(pitch=60, type='NOTE_ON', time=50),
+            midievent(pitch=60, type='NOTE_OFF', time=100),
+            midievent(pitch=62, type='NOTE_ON', time=100),
+            midievent(pitch=60, type='NOTE_OFF', time=150),
+            midievent(pitch=55, type='NOTE_ON', time=150),
+            midievent(pitch=62, type='NOTE_OFF', time=200),
+            midievent(pitch=55, type='NOTE_OFF', time=250)]

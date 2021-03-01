@@ -5,6 +5,10 @@ def cantus(list_pitches=[]):
     return [CTEvent(p, 0) for p in list_pitches]
     
 @CTGenerator
+def cantus_from_pulses(list_pulses=[]):
+    return [CTEvent(None, p) for p in list_pulses]
+    
+@CTGenerator
 def steady_pulse(ticks=0, n_pulses=1):
     return [CTEvent(None, ticks) for i in range(n_pulses)]
     

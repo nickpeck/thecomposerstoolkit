@@ -1,4 +1,5 @@
 from collections import namedtuple
+from time import sleep
 
 from toolz import pipe as pipe
 from infix import or_infix
@@ -247,5 +248,18 @@ class Container():
                 all_midi_events.append(midievent(me.pitch, me.type, me.time))
         all_midi_events = sorted(all_midi_events, key=lambda x: x.time)
         return all_midi_events
+        
+    def playback(self, player_func, dynamic=60):
+        playback_events = self.get_playback_events()
+        #nb the events are chronologically ordered
+        count = 0
+        for event in playback_events:
+            if event.time != count:
+                sleep(event.time - count)
+            count = event.time
+            if event.type == "NOTE_ON":
+                player_func.noteon(0, event.pitch, dynamic)
+            elif event.type == "NOTE_OFF":
+                player_func.noteoff(0, event.pitch)
         
         

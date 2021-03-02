@@ -28,9 +28,9 @@ def constraint_enforce_shared_pitches(min_shared=1):
     
 def constraint_no_leaps_more_than(max_int):
     def f(context):
-        event, seq, tick = context
-        previous_pitch = seq[-1].pitch
-        delta =  event.pitch - previous_pitch
+        note, seq, tick = context
+        previous_pitch = seq.events[-2].pitch
+        delta =  note - previous_pitch
         return abs(delta) <= max_int
     return f
     

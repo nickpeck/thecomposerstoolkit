@@ -1,8 +1,7 @@
 import unittest
 
-from composerstoolkit.core import (CTEvent, CTSequence, CTGenerator, 
-chain, NotChainableException, midievent, Container)
-from composerstoolkit.builder.permutators import permutate
+from composerstoolkit import (CTEvent, CTSequence, CTGenerator,
+chain, NotChainableException, midievent, Container, permutate)
 
 class CTEventTests(unittest.TestCase):
     

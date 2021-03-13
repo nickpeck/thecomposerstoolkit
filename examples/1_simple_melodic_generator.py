@@ -1,9 +1,6 @@
 import fluidsynth
-
-from composerstoolkit.core import CTEvent, CTSequence, chain, boolean_gate, Container
-from composerstoolkit.builder.generators import cantus, steady_pulse, collision_pattern, cantus_from_pulses
-from composerstoolkit.builder.permutators import permutate
-from composerstoolkit.builder.transformers import map_to_pulses
+from composerstoolkit import (chain, Container,
+cantus, cantus_from_pulses, permutate, map_to_pulses)
 
 # intialise our synth
 synth = fluidsynth.Synth()

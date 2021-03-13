@@ -1,16 +1,10 @@
 import unittest
 
-from composerstoolkit.core import (CTEvent, 
-    CTSequence, CTGenerator, CTTransformer)
-from composerstoolkit.composers.solvers import (
-    random_walk, random_walk_backtracking,
-    random_walk_backtracking_w_heuristics)
-from composerstoolkit.composers.evolutionary import Evolutionary, Extinction
-from composerstoolkit.builder.transformers import transpose
-from composerstoolkit.composers.constraints import constraint_in_set
-from composerstoolkit.composers.heuristics import (
-    heuristic_trend_upwards, heuristic_sine_shape)
-from composerstoolkit.resources.scales import C_major
+from composerstoolkit import (CTEvent, CTSequence, CTGenerator, 
+CTTransformer, random_walk, random_walk_backtracking,
+random_walk_backtracking_w_heuristics, Evolutionary, Extinction,
+transpose, constraint_in_set, heuristic_trend_upwards, heuristic_sine_shape,
+scales)
 
 class SolversTests(unittest.TestCase):
     
@@ -58,18 +52,18 @@ class SolversTests(unittest.TestCase):
         seq = random_walk_backtracking(
             60,
             8,
-            [constraint_in_set(C_major)]
+            [constraint_in_set(scales.C_major)]
         )
         
         assert len(seq.events) == 8
-        assert seq.to_pitch_set().issubset(C_major)
+        assert seq.to_pitch_set().issubset(scales.C_major)
         
     def test_random_walk_backtracking_single_item(self):
         
         seq = random_walk_backtracking(
             60,
             1,
-            [constraint_in_set(C_major)]
+            [constraint_in_set(scales.C_major)]
         )
         
         assert seq.pitches == [60]
@@ -80,7 +74,7 @@ class SolversTests(unittest.TestCase):
             60,
             8, 
             [
-                constraint_in_set(C_major),
+                constraint_in_set(scales.C_major),
             ],
             [
                 heuristic_trend_upwards(60)
@@ -95,7 +89,7 @@ class SolversTests(unittest.TestCase):
             60,
             seq_length, 
             [
-                constraint_in_set(C_major),
+                constraint_in_set(scales.C_major),
             ],
             [
                 heuristic_sine_shape(60, 30, seq_length, 1)
@@ -105,7 +99,7 @@ class SolversTests(unittest.TestCase):
         
     def test_evolutionary_composer_defaults(self):
         def fitness(seq):
-            return seq.to_pitch_set().issubset(C_major)
+            return seq.to_pitch_set().issubset(scales.C_major)
         evo = Evolutionary(
             transformations=[
                 (transpose(1), 0.5),
@@ -119,11 +113,11 @@ class SolversTests(unittest.TestCase):
             seq,transformations = evo()
         
         assert len(seq.events) == 8
-        assert seq.to_pitch_set().issubset(C_major)
+        assert seq.to_pitch_set().issubset(scales.C_major)
         
     def test_evolutionary_composer_exception_insufficent_parents(self):
         def fitness(seq):
-            return seq.to_pitch_set().issubset(C_major)
+            return seq.to_pitch_set().issubset(scales.C_major)
         evo = Evolutionary(
             transformations=[
                 (transpose(1), 0.5)],

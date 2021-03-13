@@ -1,9 +1,8 @@
 import unittest
-
-from composerstoolkit.core import CTEvent, CTSequence, chain, boolean_gate
-from composerstoolkit.builder.transformers import (loop, transpose, invert,
-    retrograde, rhythmic_augmentation, rhythmic_diminution,
-    explode_intervals, rotate, map_to_pulses, map_to_pitches)
+    
+from composerstoolkit import (CTEvent, CTSequence, chain, boolean_gate,
+loop, transpose, invert, retrograde, rhythmic_augmentation,
+rhythmic_diminution, explode_intervals, rotate, map_to_pulses, map_to_pitches)
 
 class CTLibraryTransformerTests(unittest.TestCase):
     

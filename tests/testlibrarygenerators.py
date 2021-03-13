@@ -1,7 +1,7 @@
 import unittest
 
-from composerstoolkit.core import CTEvent, CTSequence
-from composerstoolkit.builder.generators import cantus, steady_pulse, collision_pattern
+from composerstoolkit import (CTEvent, CTSequence, cantus,
+steady_pulse, collision_pattern)
 
 class CTLibraryGeneratorTests(unittest.TestCase):
     

@@ -2,11 +2,8 @@ import pprint
 
 import fluidsynth
 
-from composerstoolkit import (CTEvent, CTSequence, CTGenerator,  cantus,
-CTTransformer, random_walk, random_walk_backtracking, Container, chain,
-random_walk_backtracking_w_heuristics, Evolutionary, Extinction, steady_pulse,
-transpose, constraint_in_set, heuristic_trend_upwards, heuristic_sine_shape, map_to_pulses,
-transpose, retrograde, invert, rotate, explode_intervals, scales)
+from composerstoolkit import (cantus, Container, chain, Evolutionary, Extinction, steady_pulse,
+transpose, map_to_pulses, retrograde, invert, rotate, explode_intervals)
 
 # intialise our synth
 synth = fluidsynth.Synth()
@@ -14,6 +11,7 @@ synth.start()
 sfid = synth.sfload("Nice-Steinway-v3.8.sf2")
 synth.program_select(0, sfid, 0, 0)
 
+# initial 'pool' (transformation, weighting)
 starting_transformations = [
     (transpose(1), 0.5),
     (retrograde(), 0.5),
@@ -37,6 +35,8 @@ def present_results(result, transformations):
     playback(result)
     
 def get_feedback(seq):
+    # user offers Y/N feedback on a candidate.
+    # if yes, the parents are weigher higher
     print("-"*20)
     pprint.pprint(seq.events, indent=4)
     playback(seq)
@@ -47,8 +47,12 @@ evo = Evolutionary(
     transformations=starting_transformations,
     fitness_func=get_feedback)
 
-result,transformations = evo(cantus([60, 66, 67]))
-present_results(result,transformations)
+try:
+    result,transformations = evo(cantus([60, 66, 67]))
+    present_results(result,transformations)
+except Extinction:
+    print("The pool became extinct! You should try approving some results early on.")
+    exit(0)
 
 while True:
     res = input("Enter y to run, unguided for 10 more generations, any other key to end")

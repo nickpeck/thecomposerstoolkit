@@ -7,16 +7,16 @@ class CTEventTests(unittest.TestCase):
     
     def test_ctevent_defaults(self):
         cte = CTEvent()
-        assert cte.pitch == None
+        assert cte.pitches == []
         assert cte.duration == 0
         
     def test_ctevent_str(self):
         cte = CTEvent()
-        assert str(cte) == "<CTEvent None, 0>"
+        assert str(cte) == "<CTEvent [], 0>"
         
     def test_ctevent_creation(self):
         cte = CTEvent(3, 400)
-        assert cte.pitch == 3
+        assert cte.pitches == [3]
         assert cte.duration == 400
         
     def test_setattr_raises_exc(self):
@@ -62,8 +62,11 @@ class CTSequenceTests(unittest.TestCase):
         cts = CTSequence([CTEvent(62,100)])
         
         def test_modifier(sequence):
-            return [CTEvent(e.pitch * 2 , e.duration * 2) 
-                for e in sequence.events] 
+            result = []
+            for e in sequence.events:
+                new_pitches = [p * 2 for p in e.pitches]
+                result.append(CTEvent(new_pitches,  e.duration * 2))
+            return result
         
         new_seq = cts.chain(test_modifier)
         assert new_seq.events == [CTEvent(124,200)]
@@ -73,11 +76,14 @@ class CTSequenceTests(unittest.TestCase):
         cts = CTSequence([CTEvent(62,100)])
         
         def test_modifier(sequence):
-            return [CTEvent(e.pitch * 2 , e.duration * 2) 
-                for e in sequence.events] 
+            result = []
+            for e in sequence.events:
+                new_pitches = [p * 2 for p in e.pitches]
+                result.append(CTEvent(new_pitches,  e.duration * 2))
+            return result
         
         new_seq = cts |chain| test_modifier
-        assert new_seq.events == [CTEvent(124,200)]
+        assert new_seq.events == [CTEvent([124],200)]
         assert new_seq.memento == cts
     
     def test_chain_using_infix_raises_exc_if_not_chainable(self):

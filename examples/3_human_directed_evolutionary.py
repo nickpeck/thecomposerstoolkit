@@ -20,7 +20,7 @@ starting_transformations = [
     (explode_intervals(2), 0.5)]
     
 def playback(seq):
-    pulse_pattern = steady_pulse(0.2, 100)
+    pulse_pattern = steady_pulse(0.2, len(seq.events))
     seq = seq |chain| map_to_pulses(pulse_pattern)
     container = Container(bpm=160)
     container.add_sequence(0, seq)

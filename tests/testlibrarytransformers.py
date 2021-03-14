@@ -1,7 +1,7 @@
 import unittest
     
 from composerstoolkit import (CTEvent, CTSequence, chain, boolean_gate,
-loop, transpose, invert, retrograde, rhythmic_augmentation,
+loop, transpose, invert, retrograde, rhythmic_augmentation, aggregate_into_chords,
 rhythmic_diminution, explode_intervals, rotate, map_to_pulses, map_to_pitches)
 
 class CTLibraryTransformerTests(unittest.TestCase):
@@ -293,3 +293,20 @@ class CTLibraryTransformerTests(unittest.TestCase):
             CTEvent(62,100),
         ]
         
+    def test_aggregate_into_chords(self):
+        src = CTSequence([
+            CTEvent(60,100),
+            CTEvent(61,100),
+            CTEvent(62,100),
+            CTEvent(63,100),
+            CTEvent(64,100),
+            CTEvent(65,100),
+            CTEvent(66,100),
+            CTEvent(67,100),
+        ])
+        transformed = src.chain(aggregate_into_chords(3))
+        assert transformed.events == [
+            CTEvent([60, 61, 62], 1), 
+            CTEvent([63, 64, 65], 1), 
+            CTEvent([66, 67], 1)
+        ]

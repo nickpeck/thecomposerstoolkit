@@ -1,4 +1,5 @@
 from collections import namedtuple
+import itertools
 from time import sleep
 
 from toolz import pipe as pipe
@@ -14,15 +15,19 @@ def chain(a,b):
         raise NotChainableException(
             "object {} is not chainable".format(str(a)))
 
-_ctevent = namedtuple("ctevent", ["pitch", "duration"])
+_ctevent = namedtuple("ctevent", ["pitches", "duration"])
 
 class CTEvent(_ctevent):
     
-    def __new__(cls, pitch=None, duration=0):
-        return _ctevent.__new__(cls, pitch, duration)
+    def __new__(cls, pitches=None, duration=0):
+        if pitches is None:
+            pitches = []
+        elif isinstance(pitches, int):
+            pitches = [pitches]
+        return _ctevent.__new__(cls, pitches, duration)
     
     @property
-    def pitch(self):
+    def pitches(self):
         return self[0]
     
     @property
@@ -30,7 +35,7 @@ class CTEvent(_ctevent):
         return self[1]
     
     def __str__(self):
-        return "<CTEvent {0}, {1}>".format(self.pitch, self.duration)
+        return "<CTEvent {0}, {1}>".format(self.pitches, self.duration)
     
     def __add__(self, other):
         return CTSequence([self, other])
@@ -57,33 +62,35 @@ class CTSequence():
     def to_midi_events(self, time_offset=0):
         results = []
         for e in self.events:
-            results.append(midievent(
-                pitch = e.pitch,
-                type = "NOTE_ON",
-                time = time_offset
-            ))
-            results.append(midievent(
-                pitch = e.pitch,
-                type = "NOTE_OFF",
-                time = time_offset + e.duration
-            ))
+            for pitch in e.pitches:
+                results.append(midievent(
+                    pitch = pitch,
+                    type = "NOTE_ON",
+                    time = time_offset
+                ))
+                results.append(midievent(
+                    pitch = pitch,
+                    type = "NOTE_OFF",
+                    time = time_offset + e.duration
+                ))
             time_offset = time_offset + e.duration
         results.sort(key=lambda x: x.time, reverse=False)
         return results
         
     @property
     def pitches(self):
-        return [e.pitch for e in self.events]
+        return list(itertools.chain.from_iterable([e.pitches for e in self.events]))
     
     @property
     def durations(self):
         return [e.duration for e in self.events]
         
     def to_pitch_set(self):
-        return {*[e.pitch for e in self.events]}
+        return {* (itertools.chain.from_iterable([e.pitches for e in self.events]))}
         
     def to_pitch_class_set(self):
-        return {*[e.pitch % 12 for e in self.events]}
+        pitch_set = self.to_pitch_set()
+        return {*[p % 12 for p in pitch_set]}
         
     def lookup(self, offset=0):
         if offset < 0:
@@ -188,7 +195,7 @@ def boolean_gate(gate):
                 past_toggle_state = False
                 continue
             
-            cur_toggle_state = (cur_gate_event.pitch is not None)
+            cur_toggle_state = (cur_gate_event.pitches != [])
             has_changed = cur_toggle_state != past_toggle_state
             
             if not has_changed or i == 0:

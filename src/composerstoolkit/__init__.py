@@ -3,7 +3,7 @@ steady_pulse, collision_pattern)
 from .builder.permutators import permutate
 from .builder.transformers import (loop, transpose, retrograde, 
 invert, rotate, mutation, explode_intervals, rhythmic_augmentation,
-rhythmic_diminution, map_to_pulses, map_to_pitches)
+rhythmic_diminution, map_to_pulses, map_to_pitches, aggregate_into_chords)
 from .core import (NotChainableException, chain, CTEvent,
 CTSequence, CTGenerator, CTTransformer, boolean_gate, Container, midievent)
 from .composers.constraints import (constraint_in_set,

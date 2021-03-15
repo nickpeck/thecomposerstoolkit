@@ -9,7 +9,7 @@ def constraint_in_set(_set = range(0,128)):
 def constraint_no_repeated_adjacent_notes():
     def f(context):
         note, seq, tick = context
-        return seq[0].pitch != context["previous"][-1].pitch
+        return seq[0].pitches[0] != context["previous"][-1].pitches[0]
     return f
     
 def constraint_limit_shared_pitches(max_shared=1):
@@ -29,7 +29,7 @@ def constraint_enforce_shared_pitches(min_shared=1):
 def constraint_no_leaps_more_than(max_int):
     def f(context):
         note, seq, tick = context
-        previous_pitch = seq.events[-2].pitch
+        previous_pitch = seq.events[-2].pitches[0]
         delta =  note - previous_pitch
         return abs(delta) <= max_int
     return f
@@ -39,12 +39,12 @@ def constraint_note_is(tick=0,pitch=0):
         event, seq, _tick = context
         if _tick != tick:
             return True
-        return event.pitch == pitch
+        return event.pitches[0] == pitch
     return f
     
 def constraint_voice2_is_lower_than(voice1):
     def f(context):
         event, seq, tick = context
         #print(tick, voice1[tick], note, voice1[tick] >= note)
-        return voice1[tick].pitch >= event.pitch
+        return voice1[tick].pitches[0] >= event.pitches[0]
     return f

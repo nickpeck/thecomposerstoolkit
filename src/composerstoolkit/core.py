@@ -2,6 +2,7 @@ from collections import namedtuple
 import itertools
 from time import sleep
 
+from midiutil.MidiFile import MIDIFile
 from toolz import pipe as pipe
 from infix import or_infix
 
@@ -268,5 +269,18 @@ class Container():
                 player_func.noteon(0, event.pitch, dynamic)
             elif event.type == "NOTE_OFF":
                 player_func.noteoff(0, event.pitch)
+                
+    def save_as_midi_file(self, filename, dynamic=60):
+        mf = MIDIFile(len(self.sequences))
+        for (channel_no, offset, seq) in self.sequences:
+            mf.addTrackName(channel_no, offset, "Channel {}".format(channel_no))
+            count = offset
+            for event in seq.events:
+                for pitch in event.pitches:
+                    mf.addNote(channel_no, 0, pitch, count, event.duration, dynamic)
+                count = count + event.duration
+        mf.addTempo(0, 0, self.options["bpm"])
+        with open(filename, 'wb') as outf:
+            mf.writeFile(outf)
         
         

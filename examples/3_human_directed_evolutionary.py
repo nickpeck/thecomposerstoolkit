@@ -65,4 +65,7 @@ while True:
         result,transformations = evo(result, 10)
         present_results(result,transformations)
     else:
+        container = Container(bpm=160)
+        container.add_sequence(0, result)
+        container.save_as_midi_file("3_human_directed_evolutionary.mid")
         break

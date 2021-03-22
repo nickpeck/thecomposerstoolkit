@@ -250,10 +250,11 @@ class Container():
         self.sequences.append((channel_no, offset, seq))
         
     def get_playback_events(self):
+        playback_rate = self.options["playback_rate"]
         all_midi_events = []
         for (channel_no, offset,seq) in self.sequences:
             for me in seq.to_midi_events(offset):
-                all_midi_events.append(midievent(me.pitch, me.type, me.time))
+                all_midi_events.append(midievent(me.pitch, me.type, me.time / playback_rate))
         all_midi_events = sorted(all_midi_events, key=lambda x: x.time)
         return all_midi_events
         

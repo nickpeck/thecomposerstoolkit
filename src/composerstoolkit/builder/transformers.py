@@ -163,7 +163,8 @@ def map_to_pulses(seq, pulse_sequence):
             next_pulse = next(iter_pulses)
             result.append(CTEvent(e.pitches, next_pulse.duration))
         except StopIteration:
-            result.append(CTEvent(e.pitches, 0))
+            break
+            #result.append(CTEvent(e.pitches, 0))
     return result
     
 @CTTransformer

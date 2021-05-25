@@ -190,8 +190,7 @@ class CTLibraryTransformerTests(unittest.TestCase):
         assert exploded.events == [
             CTEvent(60,100),
             CTEvent(62,200),
-            CTEvent(64,300),
-            CTEvent(60,0),
+            CTEvent(64,300)
         ]
         
     def test_map_to_pitches(self):

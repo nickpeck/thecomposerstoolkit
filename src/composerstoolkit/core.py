@@ -280,7 +280,7 @@ class Container():
                 for pitch in event.pitches:
                     mf.addNote(channel_no, 0, pitch, count, event.duration, dynamic)
                 count = count + event.duration
-        mf.addTempo(0, 0, self.options["bpm"])
+        # mf.addTempo(0, 0, self.options["bpm"])
         with open(filename, 'wb') as outf:
             mf.writeFile(outf)
         

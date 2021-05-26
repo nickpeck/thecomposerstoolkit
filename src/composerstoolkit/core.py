@@ -284,4 +284,34 @@ class Container():
         with open(filename, 'wb') as outf:
             mf.writeFile(outf)
         
+class Vertex(object):
+    """
+    Vertex used to represent a musical event when parsed into 
+    a directed graph structure
+    """
+    @classmethod
+    def treeFromGraph(cls, graph):
+        results = {}
+        for key in graph.keys():
+            v = Vertex(key)
+            results[key] = v
+        for key in graph.keys():
+            node = results[key]
+            neighbours = graph[key]
+            for (name, pitch_delta, time_delta) in neighbours:
+                try:
+                    neighbour = results[name]
+                except KeyError:
+                    results[name] = Vertex(name)
+                node.addNeighbour((pitch_delta, time_delta), results[name])
+        return [v for k,v in results.items()]
+                
+    def __init__(self, name):
+        self.name = name
+        self.neighbours = []
         
+    def __repr__(self):
+        return "Vertex({})".format(self.name)
+        
+    def addNeighbour(self, vector, neighbour):
+        self.neighbours.append((vector, neighbour))

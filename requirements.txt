@@ -1,3 +1,4 @@
+choices==0.1
 coverage==5.3
 infix==1.2
 MIDIUtil==1.2.1

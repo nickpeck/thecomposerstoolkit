@@ -11,5 +11,5 @@ It is anticipated these tools will allow various different interactions that ena
 - Sculptor: The user is always free to make alterations, cuts and edits indpendantly of the aforementioned processes. The suite will provide tools to enable playback via a 3rd party Midi implementation of the user's choice.
 
 
-As much as possible, the tools will be agnostic towards any one given interpretation, theory or style. Any ideas that depart from this will be publised in a separate module (composerstoolkit-extended).
+As much as possible, the tools will be agnostic towards any one given interpretation, theory or style. Any ideas that depart from this will be publised in a future module (composerstoolkit-extended).
 

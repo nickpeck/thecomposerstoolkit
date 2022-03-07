@@ -1,6 +1,6 @@
 # The Composers Toolkit
 
-deprecated - see https://github.com/nickpeck/composerstoolkitv2
+**deprecated - see https://github.com/nickpeck/composerstoolkitv2**
 
 This package contains a suite of tools to assist and enrich the process of musical composition.
 
